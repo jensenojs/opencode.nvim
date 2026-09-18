@@ -396,6 +396,7 @@ describe('input_window', function()
     end)
 
     after_each(function()
+      require('opencode.ui.autocmds').setup_subscriptions(false)
       local config = require('opencode.config')
       config.ui = original_config
 
@@ -412,8 +413,7 @@ describe('input_window', function()
     it('should NOT auto-hide when output window is empty (new session)', function()
       vim.api.nvim_buf_set_lines(output_buf, 0, -1, false, { '' })
 
-      local group = vim.api.nvim_create_augroup('test_input_window_autohide', { clear = true })
-      input_window.setup_autocmds(state.windows, group)
+      require('opencode.ui.autocmds').setup_subscriptions()
 
       vim.api.nvim_exec_autocmds('WinLeave', {
         buffer = input_buf,
@@ -422,15 +422,12 @@ describe('input_window', function()
 
       assert.is_false(input_window.is_hidden())
       assert.is_true(vim.api.nvim_win_is_valid(input_win))
-
-      vim.api.nvim_del_augroup_by_id(group)
     end)
 
     it('should auto-hide when output window has content and input is empty', function()
       vim.api.nvim_buf_set_lines(output_buf, 0, -1, false, { 'User message', 'Assistant response' })
 
-      local group = vim.api.nvim_create_augroup('test_input_window_autohide', { clear = true })
-      input_window.setup_autocmds(state.windows, group)
+      require('opencode.ui.autocmds').setup_subscriptions()
 
       vim.api.nvim_exec_autocmds('WinLeave', {
         buffer = input_buf,
@@ -438,8 +435,6 @@ describe('input_window', function()
       })
 
       assert.is_true(input_window.is_hidden())
-
-      vim.api.nvim_del_augroup_by_id(group)
     end)
 
     it('should NOT auto-hide when input has content', function()
@@ -447,8 +442,7 @@ describe('input_window', function()
       vim.api.nvim_buf_set_lines(input_buf, 0, -1, false, { 'user typing...' })
       state.ui.set_input_content({ 'user typing...' })
 
-      local group = vim.api.nvim_create_augroup('test_input_window_autohide', { clear = true })
-      input_window.setup_autocmds(state.windows, group)
+      require('opencode.ui.autocmds').setup_subscriptions()
 
       vim.api.nvim_exec_autocmds('WinLeave', {
         buffer = input_buf,
@@ -457,16 +451,13 @@ describe('input_window', function()
 
       assert.is_false(input_window.is_hidden())
       assert.is_true(vim.api.nvim_win_is_valid(input_win))
-
-      vim.api.nvim_del_augroup_by_id(group)
     end)
 
     it('should NOT auto-hide when display_route is active', function()
       vim.api.nvim_buf_set_lines(output_buf, 0, -1, false, { 'User message', 'Assistant response' })
       state.ui.set_display_route(true)
 
-      local group = vim.api.nvim_create_augroup('test_input_window_autohide', { clear = true })
-      input_window.setup_autocmds(state.windows, group)
+      require('opencode.ui.autocmds').setup_subscriptions()
 
       vim.api.nvim_exec_autocmds('WinLeave', {
         buffer = input_buf,
@@ -475,8 +466,6 @@ describe('input_window', function()
 
       assert.is_false(input_window.is_hidden())
       assert.is_true(vim.api.nvim_win_is_valid(input_win))
-
-      vim.api.nvim_del_augroup_by_id(group)
     end)
   end)
 
